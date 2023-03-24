@@ -1,50 +1,67 @@
+import { Department, Gender, JobTitle } from "./employee";
+
 export const employeePostBodySchema = {
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "id": "/EmployeeSchema",
-    "type": "object",
-    "properties": {
-        "full_name": {
-            "type": "string",
-            "minLength": 2
+    $schema: "http://json-schema.org/draft-07/schema#",
+    id: "/EmployeeSchema",
+    type: "object",
+    properties: {
+        fullName: {
+            type: "string",
+            minLength: 2,
         },
-        "date_of_birth": {
-            "type": "string",
-            "format": "date"
+        dateOfBirth: {
+            type: "string",
+            format: "date",
         },
-        "contact_information": {
-            "id": "/ContactInformation",
-            "type": "object",
-            "properties": {
-                "phone": {
-                    "type": "string",
-                    "format": "phone"
+        gender: {
+            type: "string",
+            enum: Object.values(Gender),
+        },
+        contactInformation: {
+            id: "/ContactInformation",
+            type: "object",
+            properties: {
+                phone: {
+                    type: "string",
+                    format: "phone",
                 },
-                "personal_email": {
-                    "type": "string",
-                    "format": "email"
+                personalEmail: {
+                    type: "string",
+                    format: "email",
                 },
-                "work_email": {
-                    "type": "string",
-                    "format": "email"
+                workEmail: {
+                    type: "string",
+                    format: "email",
                 },
-                "street": {
-                    "type": "string"
-                }
+                street: {
+                    type: "string",
+                    minLength: 2,
+                },
             },
-            "required": ["phone", "work_email", "personal_email"]
+            required: ["phone", "workEmail", "personalEmail", "street"],
         },
-        "hire_date": {
-            "type":"string",
-            "format": "date"
+        hireDate: {
+            type: "string",
+            format: "date",
         },
-        "department": {
-            "type": "string",
-            "minLength": 1
+        department: {
+            type: "string",
+            minLength: 1,
+            enum: Object.values(Department),
         },
-        "job_title": {
-            "type": "string",
-            "minLength": 2
-        }
+        jobTitle: {
+            type: "string",
+            minLength: 2,
+            enum: Object.values(JobTitle),
+        },
     },
-    "required": ["full_name", "contact_information", "job_title", "department", "date_of_birth", "hire_date"]
-}
+    required: [
+        "fullName",
+        "contactInformation",
+        "jobTitle",
+        "department",
+        "dateOfBirth",
+        "hireDate",
+        "gender",
+    ],
+};

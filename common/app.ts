@@ -1,20 +1,17 @@
-import express, {Express} from "express";
-import {expressjwt as jwt} from "express-jwt";
+import express, { Express } from "express";
+import swaggerFile = require("../swagger_output.json");
+import swaggerUi from "swagger-ui-express";
 import dotenv from "dotenv";
 
-
 dotenv.config();
-
-if (process.env.APPLICATION_SECRET === undefined ) {
-    throw new Error('Missing application secret. Please Specify the APPLICATION_SECRET environment variable.');
+export let APPLICATION_SECRET: string;
+if (process.env.APPLICATION_SECRET === undefined) {
+    throw new Error(
+        "Missing application secret. Please Specify the APPLICATION_SECRET environment variable.",
+    );
 }
+APPLICATION_SECRET = process.env.APPLICATION_SECRET;
 export const app: Express = express();
 
 app.use(express.json());
-
-// app.use(
-//     jwt({
-//         secret: process.env.APPLICATION_SECRET,
-//         algorithms: ["HS256"],
-//     }).unless({ path: ["/token"] })
-// );
+app.use("/api-doc", swaggerUi.serve, swaggerUi.setup(swaggerFile));

@@ -1,37 +1,117 @@
-import {UUID} from "crypto";
-import {Contact} from "./contact";
+import { randomUUID, UUID } from "crypto";
+import { Contact, ContactAttributes } from "./contact";
+import { DataTypes, Model, Optional, UUIDV4 } from "sequelize";
+import { dbConnection } from "../common/connection";
+import { logger } from "../common/logger";
 
-export interface Employee {
-    emp_id: string | undefined;
-    full_name: string | undefined;
-    gender: Gender | undefined;
+export interface EmployeeAttributes {
+    empID: string;
+    fullName: string;
+    gender: Gender;
 
-    department: Department | undefined;
-    hire_date: Date | undefined;
+    department: Department;
+    hireDate: Date;
 
-    contact_information: Contact | undefined;
-    job_title: JobTitle | undefined;
+    contactID?: string;
+    jobTitle: JobTitle;
 
-    date_of_birth: Date | undefined;
+    dateOfBirth: Date;
+    createdAt?: Date;
+    updatedAt?: Date;
+    deletedAt?: Date;
 }
 
-let emp: Employee = {
-    contact_information: {
-        phone: "+254791350402",
-        personal_email: "silaskenn@gmail.com",
-        street: "Tom Mboya Street",
-        work_email: "komondi@microsoft.com"
+interface EmployeeOutput extends Required<EmployeeAttributes> {}
+
+export enum Gender {
+    Male = "Male",
+    Female = "Female",
+    UnknownFutureValue = "UnknownFutureValue",
+}
+export enum Department {
+    Engineering = "Engineering",
+    Sales = "Sales",
+    Marketing = "Marketing",
+    Design = "Design",
+    HR = "HR",
+    UnknownFutureValue = "UnknownFutureValue",
+}
+
+export enum JobTitle {
+    Software_Engineer = "Software Engineer",
+    UX_Designer = "UX Designer",
+    CEO = "CEO",
+    CTO = "CTO",
+    CFO = "CFO",
+    UnknownFutureValue = "UnknownFutureValue",
+}
+export class Employee
+    extends Model<
+        EmployeeAttributes,
+        Optional<
+            EmployeeAttributes,
+            "empID" | "createdAt" | "updatedAt" | "deletedAt"
+        >
+    >
+    implements EmployeeAttributes
+{
+    public contactID: string | undefined;
+    public department!: Department;
+    public gender!: Gender;
+    public dateOfBirth!: Date;
+    public empID!: string;
+    public fullName!: string;
+    public hireDate!: Date;
+    public jobTitle!: JobTitle;
+    public time_stamp!: Date;
+    public readonly createdAt!: Date;
+    public readonly updatedAt!: Date;
+    public readonly deletedAt!: Date;
+}
+
+Employee.init(
+    {
+        contactID: {
+            type: DataTypes.UUID,
+            allowNull: true
+        },
+        dateOfBirth: {
+            type: DataTypes.DATEONLY,
+            allowNull: false,
+        },
+        empID: {
+            type: DataTypes.UUID,
+            defaultValue: new UUIDV4(),
+            unique: true,
+            primaryKey: true,
+        },
+        fullName: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        gender: {
+            type: DataTypes.ENUM,
+            allowNull: false,
+            values: Object.values(Gender),
+        },
+        jobTitle: {
+            type: DataTypes.ENUM,
+            allowNull: false,
+            values: Object.values(JobTitle),
+        },
+        hireDate: {
+            type: DataTypes.DATE,
+            allowNull: false,
+        },
+        department: {
+            type: DataTypes.ENUM,
+            values: Object.values(Department),
+        },
     },
-    date_of_birth: new Date('1995-12-12'),
-    department: "Engineering",
-    emp_id: crypto.randomUUID().toString(),
-    full_name: "Kenneth Omondi",
-    gender: "Male",
-    hire_date: new Date("2022-12-12"),
-    job_title: "Software Engineer"
-}
-emp.gender = "Male";
+    { sequelize: dbConnection, paranoid: true, tableName: "employees" },
+);
 
-export type Gender = "Male" | "Female" | "Unknown";
-export type Department = 'Engineering' | 'Sales' | 'Marketing' | 'Design' | 'HR';
-export type JobTitle = 'Software Engineer' | 'UX Designer' | 'CEO' | 'CTO' | 'CFO';
+Employee.belongsTo(Contact, { as: "employee", foreignKey: 'contactID' });
+dbConnection.sync({}).then((r) => {
+    logger.info("Sync Success!");
+});
