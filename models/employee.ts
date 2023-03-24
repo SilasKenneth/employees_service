@@ -22,8 +22,8 @@ export interface EmployeeAttributes {
 }
 
 export interface EmployeeOutput {
-    fullName?: string,
-    department: Department
+    fullName?: string;
+    department: Department;
     // Contact?: Optional<Contact, 'contactID' | 'createdAt' | 'deletedAt' | 'updatedAt'>
 }
 

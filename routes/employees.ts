@@ -6,7 +6,7 @@ import {
 } from "../models/schemas";
 import { dbConnection } from "../common/connection";
 import { validate as uuidValidate } from "uuid";
-import {Employee, EmployeeOutput} from "../models/employee";
+import { Employee, EmployeeOutput } from "../models/employee";
 import { logger } from "../common/logger";
 const jwt = require("jsonwebtoken");
 import { APPLICATION_SECRET } from "../common/app";
@@ -161,11 +161,14 @@ employeesRouter.get(
         if (!uuidValidate(req.params.emp_id)) {
             res.status(404).json({ message: "Invalid employee ID passed." });
         }
-        let result: EmployeeOutput = await Employee.findByPk(req.params.emp_id, {
-            include: {
-                model: Contact,
-            }
-        });
+        let result: EmployeeOutput = await Employee.findByPk(
+            req.params.emp_id,
+            {
+                include: {
+                    model: Contact,
+                },
+            },
+        );
 
         if (result) {
             res.json({ message: "Success", value: result });
