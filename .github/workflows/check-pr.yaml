@@ -7,6 +7,7 @@ on:
   pull_request:
 jobs:
   check-pr:
+    runs-on: 'ubuntu-latest'
     name: Check Styles using Rome
     steps:
       - uses: rome/setup-rome@v0.4
