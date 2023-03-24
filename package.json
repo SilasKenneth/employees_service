@@ -4,7 +4,7 @@
   "description": "An application to manage employee records.",
   "main": "./dist/index.js",
   "scripts": {
-    "build": "npx tsc",
+    "build": "./node_modules/.bin/tsc",
     "run": "node ./dist/index.js",
     "dev": "concurrently \"npx tsc --watch\" \"nodemon -q dist/index.js\"",
     "test": "jest",
