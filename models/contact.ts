@@ -1,7 +1,6 @@
 import { UUID } from "crypto";
 import { DataTypes, Model, Optional, STRING, UUIDV4 } from "sequelize";
 import { dbConnection } from "../common/connection";
-import { Employee } from "./employee";
 
 export interface ContactAttributes {
     contactID: UUID;
@@ -40,7 +39,7 @@ Contact.init(
     {
         contactID: {
             type: DataTypes.UUID,
-            defaultValue: new UUIDV4(),
+            defaultValue: DataTypes.UUIDV4,
             primaryKey: true,
         },
         phone: {

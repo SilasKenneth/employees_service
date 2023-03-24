@@ -81,7 +81,7 @@ Employee.init(
         },
         empID: {
             type: DataTypes.UUID,
-            defaultValue: new UUIDV4(),
+            defaultValue: DataTypes.UUIDV4,
             unique: true,
             primaryKey: true,
         },
@@ -111,7 +111,7 @@ Employee.init(
     { sequelize: dbConnection, paranoid: true, tableName: "employees" },
 );
 
-Employee.belongsTo(Contact, { as: "employee", foreignKey: 'contactID' });
+Employee.belongsTo(Contact, { foreignKey: 'contactID' });
 dbConnection.sync({}).then((r) => {
     logger.info("Sync Success!");
 });

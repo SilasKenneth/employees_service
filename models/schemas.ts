@@ -65,3 +65,59 @@ export const employeePostBodySchema = {
         "gender",
     ],
 };
+
+export const employeeUpdateSchema = {
+    $schema: "http://json-schema.org/draft-07/schema#",
+    id: "/EmployeeUpdateSchema",
+    type: "object",
+    properties: {
+        fullName: {
+            type: "string",
+            minLength: 2,
+        },
+        dateOfBirth: {
+            type: "string",
+            format: "date",
+        },
+        gender: {
+            type: "string",
+            enum: Object.values(Gender),
+        },
+        contactInformation: {
+            id: "/ContactUpdateInformation",
+            type: "object",
+            properties: {
+                phone: {
+                    type: "string",
+                    format: "phone",
+                },
+                personalEmail: {
+                    type: "string",
+                    format: "email",
+                },
+                workEmail: {
+                    type: "string",
+                    format: "email",
+                },
+                street: {
+                    type: "string",
+                    minLength: 2,
+                },
+            }
+        },
+        hireDate: {
+            type: "string",
+            format: "date",
+        },
+        department: {
+            type: "string",
+            minLength: 1,
+            enum: Object.values(Department),
+        },
+        jobTitle: {
+            type: "string",
+            minLength: 2,
+            enum: Object.values(JobTitle),
+        },
+    }
+}

@@ -1,16 +1,15 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { validate as schemaValidate } from "jsonschema";
-import { employeePostBodySchema } from "../models/schemas";
+import {employeePostBodySchema, employeeUpdateSchema} from "../models/schemas";
 import { dbConnection } from "../common/connection";
-import { randomUUID, UUID } from "crypto";
 import { validate as uuidValidate } from "uuid";
 import { Employee } from "../models/employee";
 import { logger } from "../common/logger";
 const jwt = require("jsonwebtoken");
-import { expressjwt, Request as TokenRequest } from "express-jwt";
 import { APPLICATION_SECRET } from "../common/app";
-import { Transaction, UUIDV4 } from "sequelize";
+import { Transaction } from "sequelize";
 import { Contact } from "../models/contact";
+import {UUID} from "crypto";
 
 let employeesRouter: Router = Router({
     caseSensitive: true,
@@ -198,10 +197,14 @@ employeesRouter.put(
            #swagger.produces = ["application/json"]
            #swagger.tags = ['Employee']
         */
+        let errors = schemaValidate(req.body, employeeUpdateSchema, {
+            allowUnknownAttributes: false
+        }).errors;
+
         if (!uuidValidate(req.params.emp_id)) {
-            res.status(404).json({ message: "Invalid employee ID passed." });
+            res.status(404).json({ message: "Invalid employee ID passed.", data: errors });
         } else {
-            res.json({ message: "Hello world", params: req.params.emp_id });
+            res.json({ message: "Hello world", params: req.params.emp_id, data: errors });
         }
         /* #swagger.end */
     },

@@ -23,8 +23,7 @@ app.use(
         ),
     }),
 );
-
+app.use("/employees", employeesRouter);
 app.listen(config.PORT, () => {
     logger.info(`Listening on http://localhost:${config.PORT}`);
 });
-app.use("/employees", employeesRouter);
