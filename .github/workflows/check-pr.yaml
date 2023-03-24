@@ -1,0 +1,15 @@
+name: 'Check PR'
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+jobs:
+  check-pr:
+    name: Check Styles using Rome
+    steps:
+      - uses: rome/setup-rome@v0.4
+        with:
+          version: latest
+      - run: rome ci .
