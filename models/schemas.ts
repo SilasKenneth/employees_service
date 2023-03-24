@@ -103,7 +103,7 @@ export const employeeUpdateSchema = {
                     type: "string",
                     minLength: 2,
                 },
-            }
+            },
         },
         hireDate: {
             type: "string",
@@ -119,5 +119,5 @@ export const employeeUpdateSchema = {
             minLength: 2,
             enum: Object.values(JobTitle),
         },
-    }
-}
+    },
+};

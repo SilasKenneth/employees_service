@@ -21,7 +21,11 @@ export interface EmployeeAttributes {
     deletedAt?: Date;
 }
 
-interface EmployeeOutput extends Required<EmployeeAttributes> {}
+export interface EmployeeOutput {
+    fullName?: string,
+    department: Department
+    // Contact?: Optional<Contact, 'contactID' | 'createdAt' | 'deletedAt' | 'updatedAt'>
+}
 
 export enum Gender {
     Male = "Male",
@@ -73,7 +77,7 @@ Employee.init(
     {
         contactID: {
             type: DataTypes.UUID,
-            allowNull: true
+            allowNull: true,
         },
         dateOfBirth: {
             type: DataTypes.DATEONLY,
@@ -111,7 +115,7 @@ Employee.init(
     { sequelize: dbConnection, paranoid: true, tableName: "employees" },
 );
 
-Employee.belongsTo(Contact, { foreignKey: 'contactID' });
+Employee.belongsTo(Contact, { foreignKey: "contactID" });
 dbConnection.sync({}).then((r) => {
     logger.info("Sync Success!");
 });

@@ -3,17 +3,23 @@ import { config } from "./config/app";
 import { employeesRouter } from "./routes/employees";
 import { logger } from "./common/logger";
 import winston from "winston";
-import swaggerUi from "swagger-ui-express";
 const expressWinston = require("express-winston");
 import { expressjwt as jwt } from "express-jwt";
-import { dbConnection } from "./common/connection";
 
 app.use(
     jwt({
         secret: APPLICATION_SECRET,
         algorithms: ["HS256"],
-    }).unless({ path: ["/token", "/api-doc"] }),
+    }).unless({ path: ["/token", "/api-docs"] }),
 );
+app.use((err, req, res, next) => {
+    if (err.name === "UnauthorizedError") {
+        res.status(401).json({
+            code: 401,
+            message: `${err.name}: ${err.message}`,
+        });
+    } else next(err);
+});
 app.use(
     expressWinston.errorLogger({
         transports: [new winston.transports.Console()],

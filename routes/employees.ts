@@ -1,15 +1,18 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { validate as schemaValidate } from "jsonschema";
-import {employeePostBodySchema, employeeUpdateSchema} from "../models/schemas";
+import {
+    employeePostBodySchema,
+    employeeUpdateSchema,
+} from "../models/schemas";
 import { dbConnection } from "../common/connection";
 import { validate as uuidValidate } from "uuid";
-import { Employee } from "../models/employee";
+import {Employee, EmployeeOutput} from "../models/employee";
 import { logger } from "../common/logger";
 const jwt = require("jsonwebtoken");
 import { APPLICATION_SECRET } from "../common/app";
 import { Transaction } from "sequelize";
 import { Contact } from "../models/contact";
-import {UUID} from "crypto";
+import { UUID } from "crypto";
 
 let employeesRouter: Router = Router({
     caseSensitive: true,
@@ -29,14 +32,7 @@ employeesRouter.get("/", async (req: Request, res: Response) => {
        #swagger.tags = ['Employee']
     */
 
-    let result = await dbConnection
-        .query("SELECT * FROM employees;")
-        .then((result) => {
-            return result.entries();
-        })
-        .catch((error) => {
-            logger.error(error);
-        });
+    let result = await Employee.findAll({ include: Contact });
     res.json(result);
     /* #swagger.end */
 });
@@ -97,7 +93,8 @@ employeesRouter.post(
         } else {
             let empe: Employee = req.body;
 
-            let createEmployeeTransaction: Transaction = await dbConnection.transaction();
+            let createEmployeeTransaction: Transaction =
+                await dbConnection.transaction();
             logger.info(empe);
             let emp: Employee | null = null;
             let contact: Contact = req.body.contactInformation;
@@ -164,19 +161,19 @@ employeesRouter.get(
         if (!uuidValidate(req.params.emp_id)) {
             res.status(404).json({ message: "Invalid employee ID passed." });
         }
-        let result = await Employee.findByPk(req.params.emp_id, {
+        let result: EmployeeOutput = await Employee.findByPk(req.params.emp_id, {
             include: {
                 model: Contact,
             }
         });
 
-        delete result?.contactID;
-        delete result?.contactID;
-
         if (result) {
             res.json({ message: "Success", value: result });
         } else {
-            res.status(404).json({message: "Employee with ID "+req.params.emp_id+" not found."});
+            res.status(404).json({
+                message:
+                    "Employee with ID " + req.params.emp_id + " not found.",
+            });
         }
         /* #swagger.end */
     },
@@ -198,13 +195,20 @@ employeesRouter.put(
            #swagger.tags = ['Employee']
         */
         let errors = schemaValidate(req.body, employeeUpdateSchema, {
-            allowUnknownAttributes: false
+            allowUnknownAttributes: false,
         }).errors;
 
         if (!uuidValidate(req.params.emp_id)) {
-            res.status(404).json({ message: "Invalid employee ID passed.", data: errors });
+            res.status(404).json({
+                message: "Invalid employee ID passed.",
+                data: errors,
+            });
         } else {
-            res.json({ message: "Hello world", params: req.params.emp_id, data: errors });
+            res.json({
+                message: "Hello world",
+                params: req.params.emp_id,
+                data: errors,
+            });
         }
         /* #swagger.end */
     },
