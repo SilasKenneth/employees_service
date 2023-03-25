@@ -67,7 +67,6 @@ export class Employee
     public fullName!: string;
     public hireDate!: Date;
     public jobTitle!: JobTitle;
-    public time_stamp!: Date;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
     public readonly deletedAt!: Date;
@@ -104,7 +103,7 @@ Employee.init(
             values: Object.values(JobTitle),
         },
         hireDate: {
-            type: DataTypes.DATE,
+            type: DataTypes.DATEONLY,
             allowNull: false,
         },
         department: {
