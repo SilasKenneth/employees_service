@@ -18,6 +18,16 @@ let employeesRouter: Router = Router({
     caseSensitive: true,
 });
 
+const employeeAttributes = [
+    "empID",
+    "fullName",
+    "gender",
+    "department",
+    "jobTitle",
+    "dateOfBirth",
+    "hireDate",
+];
+const contactAttributes = ["phone", "workEmail", "personalEmail", "street"];
 employeesRouter.get("/", async (req: Request, res: Response) => {
     // #swagger.start
     /*
@@ -32,7 +42,10 @@ employeesRouter.get("/", async (req: Request, res: Response) => {
        #swagger.tags = ['Employee']
     */
 
-    let result = await Employee.findAll({ include: Contact });
+    let result = await Employee.findAll({
+        include: { model: Contact, attributes: contactAttributes },
+        attributes: employeeAttributes,
+    });
     res.json(result);
     /* #swagger.end */
 });
@@ -166,16 +179,17 @@ employeesRouter.get(
             {
                 include: {
                     model: Contact,
+                    attributes: contactAttributes,
                 },
+                attributes: employeeAttributes,
             },
         );
 
         if (result) {
-            res.json({ message: "Success", value: result });
+            res.json({ message: "Success", data: result });
         } else {
             res.status(404).json({
-                message:
-                    "Employee with ID " + req.params.emp_id + " not found.",
+                message: `Employee with ID ${req.params.emp_id} not found.`,
             });
         }
         /* #swagger.end */
