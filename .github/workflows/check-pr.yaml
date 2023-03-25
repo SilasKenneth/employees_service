@@ -8,7 +8,7 @@ on:
 jobs:
   check-pr:
     runs-on: 'ubuntu-latest'
-    name: Check Styles using Rome
+    name: Validate(Test/Lint)
     steps:
       - name: Check out repo's default branch
         uses: actions/checkout@v3
