@@ -190,7 +190,7 @@ employeesRouter.get(
         } else {
             res.status(404).json({
                 message:
-                    "Employee with ID " + req.params.emp_id + " not found.",
+                    `Employee with ID ${req.params.emp_id} not found.`,
             });
         }
         /* #swagger.end */
