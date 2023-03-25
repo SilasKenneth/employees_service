@@ -1,3 +1,4 @@
+![](https://github.com/SilasKenneth/employees_service/actions/workflows/check-pr.yaml/badge.svg)
 ## Employee record management API.
 This is a simple API that supports functionality to manage Employee records and 
 ### Features

@@ -1,4 +1,4 @@
-name: 'Check PR'
+name: 'Build'
 on:
   workflow_dispatch:
   push:
