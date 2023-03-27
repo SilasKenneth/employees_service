@@ -4,7 +4,9 @@ import { employeesRouter } from "./routes/employees";
 import { logger } from "./common/logger";
 import winston from "winston";
 const expressWinston = require("express-winston");
+import { createDefaultUser } from "./create_default";
 import { expressjwt as jwt } from "express-jwt";
+import { authRoute } from "./routes/auth";
 
 app.use(
     jwt({
@@ -18,6 +20,11 @@ app.use((err, req, res, next) => {
             code: 401,
             message: `${err.name}: ${err.message}`,
         });
+    } else if (err.name === "SequelizeUniqueConstraintError") {
+        res.status(401).json({
+            code: 409,
+            message: `UniqueConstraintViolation: ${err.message}: The record contains data that already exists for another employee.`,
+        });
     } else next(err);
 });
 app.use(
@@ -29,7 +36,9 @@ app.use(
         ),
     }),
 );
+app.use("/token", authRoute);
 app.use("/employees", employeesRouter);
-app.listen(config.PORT, () => {
+app.listen(config.PORT, async () => {
     logger.info(`Listening on http://localhost:${config.PORT}`);
+    await createDefaultUser();
 });

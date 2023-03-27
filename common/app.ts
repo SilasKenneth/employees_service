@@ -2,6 +2,7 @@ import express, { Express, NextFunction } from "express";
 import swaggerFile = require("../swagger_output.json");
 import swaggerUi from "swagger-ui-express";
 import dotenv from "dotenv";
+import { authRoute } from "../routes/auth";
 
 const cors = require("cors");
 
