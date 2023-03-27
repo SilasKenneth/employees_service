@@ -21,4 +21,5 @@ sequelize
     .catch((reason: Error) => {
         logger.error(reason);
     });
+
 export { sequelize as dbConnection };

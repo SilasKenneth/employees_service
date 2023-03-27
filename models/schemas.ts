@@ -121,3 +121,21 @@ export const employeeUpdateSchema = {
         },
     },
 };
+export const userLoginSchema = {
+    $schema: "http://json-schema.org/draft-07/schema#",
+    id: "/UserLoginSchema",
+    type: "object",
+    properties: {
+        email: {
+            type: "string",
+            format: "email",
+            minLength: 6,
+        },
+        password: {
+            type: "string",
+            minLength: 8,
+        },
+
+        required: ["email", "password"],
+    },
+};

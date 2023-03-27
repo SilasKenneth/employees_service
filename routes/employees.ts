@@ -8,11 +8,13 @@ import { dbConnection } from "../common/connection";
 import { validate as uuidValidate } from "uuid";
 import { Employee, EmployeeOutput } from "../models/employee";
 import { logger } from "../common/logger";
-const jwt = require("jsonwebtoken");
 import { APPLICATION_SECRET } from "../common/app";
 import { Transaction } from "sequelize";
 import { Contact } from "../models/contact";
 import { UUID } from "crypto";
+
+const jwt = require("jsonwebtoken");
+import ISOLATION_LEVELS = Transaction.ISOLATION_LEVELS;
 
 let employeesRouter: Router = Router({
     caseSensitive: true,
@@ -46,7 +48,7 @@ employeesRouter.get("/", async (req: Request, res: Response) => {
         include: { model: Contact, attributes: contactAttributes },
         attributes: employeeAttributes,
     });
-    res.json(result);
+    res.json({ status: 200, message: "Success", data: result });
     /* #swagger.end */
 });
 
@@ -65,24 +67,58 @@ employeesRouter.post(
            #swagger.security = [{
                 "bearerAuth": []
            }]
-           #swagger.parameters['body'] = {
-                in: 'body',
-                description: 'Some description...',
-                schema: {
-                    $fullName: 'Kenneth Omondi',
-                    $contactInformation: {
-                       $personalEmail: 'silaskenn@gmail.com',
-                       $workEmail: 'silas@microsoft.com',
-                       $phone: '+254791350402',
-                       $street: 'Andela Kenya'
-                    },
-                    $jobTitle: 'Software Engineer',
-                    $department: 'Engineering',
-                    $dateOfBirth: '1996-12-12',
-                    $gender: 'Male',
-                    $hireDate: '2022-12-12'
+           #swagger.requestBody = {
+                required: true,
+                "@content": {
+                    "application/json": {
+                        schema: {
+                            type: 'object',
+                            properties: {
+                            fullName: {
+                                type: 'string'
+                            },
+                            contactInformation: {
+                               type: 'object',
+                               properties: {
+                                   personalEmail: {
+                                       type: 'string',
+                                       format: 'email'
+                                   },
+                                   workEmail: {
+                                       type: 'string',
+                                       format: 'email'
+                                   },
+                                   phone: {
+                                       type: 'string',
+                                       format: 'phone'
+                                   },
+                                   street: {
+                                       type: 'string'
+                                   }
+                               }
+                            },
+                            jobTitle: {
+                                type: 'string'
+                            },
+                            department: {
+                                type: 'string'
+                            },
+                            dateOfBirth: {
+                                type: 'string',
+                                format: 'date'
+                            },
+                            gender: {
+                               type: 'string'
+                            },
+                            hireDate: {
+                               type: 'string',
+                               format: 'date'
+                            }
+                          }
+                      }
+                      }
                   }
-            }
+             }
         */
         console.log(
             jwt.sign({}, APPLICATION_SECRET, {
@@ -108,8 +144,6 @@ employeesRouter.post(
 
             let createEmployeeTransaction: Transaction =
                 await dbConnection.transaction();
-            logger.info(empe);
-            let emp: Employee | null = null;
             let contact: Contact = req.body.contactInformation;
             let result2 = await Contact.create(contact, {
                 transaction: createEmployeeTransaction,
@@ -121,16 +155,13 @@ employeesRouter.post(
 
             createEmployeeTransaction
                 .commit()
-                .then((resu) => {
-                    console.log(resu);
-                })
+                .then(() => {})
                 .catch((error) => {
                     createEmployeeTransaction.rollback();
-                    console.log(error);
+                    logger.error(error);
                 });
-            logger.info(result1);
-            logger.info(result2);
-            res.json({ message: "Success!" });
+            logger.info(`Success saving record! ${req.body}`);
+            res.json({ status: 200, message: "Success!", data: result1 });
         }
         /* #swagger.end */
     },
@@ -151,7 +182,16 @@ employeesRouter.delete(
            }]
            #swagger.tags = ['Employee']
         */
-        logger.info(req.params);
+        let result = await Employee.destroy({
+            where: {
+                empID: req.params.emp_id,
+            },
+        });
+        if (result > 0) {
+            res.json({ status: 200, message: "Success" });
+        } else {
+            res.json({ status: 400, message: "Failed" });
+        }
         /* #swagger.end */
     },
 );
@@ -217,14 +257,64 @@ employeesRouter.put(
 
         if (!uuidValidate(req.params.emp_id)) {
             res.status(404).json({
-                message: "Invalid employee ID passed.",
-                data: errors,
+                status: 404,
+                message: "InvalidEmployeeID",
+                details: "The passed employee ID is not a valid UUID value.",
+            });
+        } else if (errors.length > 0) {
+            res.json({
+                status: 400,
+                message: "InvalidData",
+                details: errors,
             });
         } else {
+            let queryTransaction = await dbConnection.transaction({
+                isolationLevel: ISOLATION_LEVELS.READ_COMMITTED,
+            });
+            let updateTransaction = await dbConnection.transaction({
+                isolationLevel: ISOLATION_LEVELS.READ_COMMITTED,
+            });
+            let contactInfo = req.body?.contactInformation;
+            let currentEmployeeDetail: Employee = await Employee.findByPk(
+                req.params.emp_id,
+                {
+                    transaction: queryTransaction,
+                    include: Contact,
+                },
+            );
+            let currentEmployeeContact: Contact = await Contact.findByPk(
+                currentEmployeeDetail.contactID,
+                {
+                    transaction: queryTransaction,
+                },
+            );
+
+            req.body.contactInformation = undefined;
+
+            try {
+                await Employee.update(req.body, {
+                    transaction: updateTransaction,
+                    where: { empID: req.params.emp_id },
+                });
+                if (contactInfo) {
+                    await Contact.update(contactInfo, {
+                        transaction: updateTransaction,
+                        where: {
+                            contactID: currentEmployeeContact.contactID,
+                        },
+                    });
+                }
+                await updateTransaction.commit();
+            } catch (error: unknown) {
+                logger.error(error);
+                await updateTransaction.rollback();
+                throw error;
+            }
+
             res.json({
-                message: "Hello world",
-                params: req.params.emp_id,
-                data: errors,
+                status: 200,
+                message: "Success",
+                data: await currentEmployeeDetail.reload(),
             });
         }
         /* #swagger.end */
