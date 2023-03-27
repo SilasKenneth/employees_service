@@ -289,7 +289,7 @@ employeesRouter.put(
                 },
             );
 
-            delete req.body.contactInformation;
+            req.body.contactInformation = undefined;
 
             try {
                 await Employee.update(req.body, {
