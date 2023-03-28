@@ -38,7 +38,7 @@ app.use(
 );
 app.use("/token", authRoute);
 app.use("/employees", employeesRouter);
-app.listen(config.PORT, async () => {
+app.listen(config.PORT, 'http://0.0.0.0',async () => {
     logger.info(`Listening on http://localhost:${config.PORT}`);
     await createDefaultUser();
 });

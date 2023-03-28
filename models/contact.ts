@@ -1,6 +1,7 @@
 import { UUID } from "crypto";
 import { DataTypes, Model, Optional, STRING, UUIDV4 } from "sequelize";
 import { dbConnection } from "../common/connection";
+import {logger} from "../common/logger";
 
 export interface ContactAttributes {
     contactID: UUID;
@@ -68,3 +69,7 @@ Contact.init(
         tableName: "contacts",
     },
 );
+
+dbConnection.sync({}).then((r) => {
+    logger.info("Sync Success!");
+});

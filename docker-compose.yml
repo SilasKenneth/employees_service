@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:9-alpine3.15
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_DB=employees
+      - POSTGRES_USER=pguser
+      - POSTGRES_PASSWORD=Password@123
+  web:
+    image: employee:latest
+    stop_signal: SIGINT
+    ports:
+      - '8080:3000'
+    depends_on:
+      - postgres
