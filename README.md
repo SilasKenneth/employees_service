@@ -23,7 +23,7 @@ This is a simple API that supports functionality to manage Employee records and
 - Install dependencies using npm install(You can also use yarn).
 - Run `npm run build` to build the application.
 - Run `npm run dev` to start the application server in development mode.
-- Open the url displayed on the console then navigate to `http://URL/docs` to view the API documentation and find out everything you can do with the application.
+- Open the url displayed on the console then navigate to `http://URL/api-docs` to view the API documentation and find out everything you can do with the application.
 
 ### Notes.
 

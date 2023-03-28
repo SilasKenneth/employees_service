@@ -4,7 +4,7 @@
   "description": "An application to manage employee records.",
   "main": "./dist/index.js",
   "scripts": {
-    "build": "npm install && tsc &&node dist/swagger.js",
+    "build": "npm install && tsc && node dist/swagger.js",
     "run": "nodemon -x node ./dist/index.js",
     "dev": "concurrently \"npx tsc --watch\" \"nodemon -x node dist/index.js\"",
     "test": "jest",
@@ -20,7 +20,6 @@
   "license": "ISC",
   "dependencies": {
     "@types/bcrypt": "^5.0.0",
-    "@types/winston": "^2.4.4",
     "bcrypt": "^5.1.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
