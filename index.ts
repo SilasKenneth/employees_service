@@ -7,6 +7,7 @@ const expressWinston = require("express-winston");
 import { createDefaultUser } from "./create_default";
 import { expressjwt as jwt } from "express-jwt";
 import { authRoute } from "./routes/auth";
+import { dbConnection } from "./common/connection";
 
 app.use(
     jwt({
@@ -20,12 +21,20 @@ app.use((err, req, res, next) => {
             code: 401,
             message: `${err.name}: ${err.message}`,
         });
-    } else if (err.name === "SequelizeUniqueConstraintError") {
+    } else if (err.name === "UniqueConstraintError") {
         res.status(401).json({
             code: 409,
             message: `UniqueConstraintViolation: ${err.message}: The record contains data that already exists for another employee.`,
         });
-    } else next(err);
+    } else if (err.name === "DatabaseError") {
+        res.status(401).json({
+            code: 409,
+            message: `UniqueConstraintViolation: ${err.message}: The record contains data that already exists for another employee.`,
+        });
+    } else {
+        console.log("PAPA: ", err);
+        next(err);
+    }
 });
 app.use(
     expressWinston.errorLogger({
@@ -40,5 +49,6 @@ app.use("/token", authRoute);
 app.use("/employees", employeesRouter);
 app.listen(config.PORT, async () => {
     logger.info(`Listening on http://localhost:${config.PORT}`);
+    await dbConnection.sync();
     await createDefaultUser();
 });

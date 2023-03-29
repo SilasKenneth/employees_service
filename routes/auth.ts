@@ -6,7 +6,7 @@ import { validate as schemaValidate } from "jsonschema";
 import { userLoginSchema } from "../models/schemas";
 import jwt from "jsonwebtoken";
 import { APPLICATION_SECRET } from "../common/app";
-let authRoute = Router();
+const authRoute = Router();
 
 authRoute.post(
     "/",
@@ -44,7 +44,7 @@ authRoute.post(
        #swagger.produces = ["application/json"]
        #swagger.tags = ['Auth']
     */
-        let errors = schemaValidate(req.body, userLoginSchema).errors;
+        const errors = schemaValidate(req.body, userLoginSchema).errors;
 
         logger.error(errors);
         if (errors.length > 0) {
@@ -65,7 +65,7 @@ authRoute.post(
             req.body.password &&
             (await bcrypt.compare(req.body.password, user.password))
         ) {
-            let token = jwt.sign({}, APPLICATION_SECRET, {
+            const token = jwt.sign({}, APPLICATION_SECRET, {
                 algorithm: "HS256",
                 expiresIn: 30 * 60 * 60,
                 issuer: "example.com",

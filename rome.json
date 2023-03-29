@@ -13,6 +13,6 @@
     "indentStyle": "space",
     "indentSize": 4,
     "lineWidth": 80,
-    "ignore": ["dist/**/*.js"]
+    "ignore": ["dist/**/*.js", "rome.json"]
   }
 }

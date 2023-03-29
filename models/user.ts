@@ -5,6 +5,7 @@ import {
     Model,
 } from "sequelize";
 import { dbConnection } from "../common/connection";
+import { logger } from "../common/logger";
 
 export class User extends Model<
     InferAttributes<User>,
@@ -45,3 +46,7 @@ User.init(
         sequelize: dbConnection,
     },
 );
+
+// dbConnection.sync({force: true}).then((r) => {
+//     logger.info("Sync Success!");
+// });
