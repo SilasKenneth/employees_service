@@ -111,10 +111,10 @@ Employee.init(
             values: Object.values(Department),
         },
     },
-    { sequelize: dbConnection, paranoid: true, tableName: "employees" },
+    { sequelize: dbConnection, paranoid: false, tableName: "employees" },
 );
 
-Employee.belongsTo(Contact, { foreignKey: "contactID" });
-dbConnection.sync({}).then((r) => {
-    logger.info("Sync Success!");
-});
+Employee.belongsTo(Contact, { foreignKey: "contactID", onDelete: 'CASCADE', onUpdate: 'CASCADE'});
+// dbConnection.sync({}).then((r) => {
+//     logger.info("Sync Success!");
+// });

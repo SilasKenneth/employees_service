@@ -65,11 +65,7 @@ Contact.init(
     },
     {
         sequelize: dbConnection,
-        paranoid: true,
+        paranoid: false,
         tableName: "contacts",
     },
 );
-
-dbConnection.sync({}).then((r) => {
-    logger.info("Sync Success!");
-});

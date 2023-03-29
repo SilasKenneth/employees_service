@@ -14,7 +14,6 @@ import { Contact } from "../models/contact";
 import { UUID } from "crypto";
 
 const jwt = require("jsonwebtoken");
-import ISOLATION_LEVELS = Transaction.ISOLATION_LEVELS;
 
 let employeesRouter: Router = Router({
     caseSensitive: true,
@@ -141,27 +140,35 @@ employeesRouter.post(
             });
         } else {
             let empe: Employee = req.body;
-
             let createEmployeeTransaction: Transaction =
                 await dbConnection.transaction();
-            let contact: Contact = req.body.contactInformation;
-            let result2 = await Contact.create(contact, {
-                transaction: createEmployeeTransaction,
-            });
-            empe.contactID = result2.contactID;
-            let result1 = await Employee.create(empe, {
-                transaction: createEmployeeTransaction,
-            });
 
-            createEmployeeTransaction
-                .commit()
-                .then(() => {})
-                .catch((error) => {
-                    createEmployeeTransaction.rollback();
-                    logger.error(error);
+            try {
+                let contact: Contact = req.body.contactInformation;
+                let result2 = await Contact.create(contact, {
+                    transaction: createEmployeeTransaction,
                 });
-            logger.info(`Success saving record! ${req.body}`);
-            res.json({ status: 200, message: "Success!", data: result1 });
+                empe.contactID = result2.contactID;
+                let result1 = await Employee.create(empe, {
+                    transaction: createEmployeeTransaction,
+                });
+
+                createEmployeeTransaction
+                    .commit()
+                    .then(() => {
+                    })
+                    .catch((error) => {
+                        createEmployeeTransaction.rollback();
+                        logger.error(error);
+                    });
+                logger.info(`Success saving record! ${req.body}`);
+                res.json({status: 200, message: "Success!", data: result1});
+            } catch (error) {
+                let specifics = error.errors.map(x => x.message);
+                await createEmployeeTransaction.rollback();
+                res.status(500)
+                    .json({status: 500, message: `Could not save record ${error.message}`, errors: specifics});
+            }
         }
         /* #swagger.end */
     },
@@ -182,15 +189,41 @@ employeesRouter.delete(
            }]
            #swagger.tags = ['Employee']
         */
-        let result = await Employee.destroy({
-            where: {
-                empID: req.params.emp_id,
-            },
-        });
-        if (result > 0) {
-            res.json({ status: 200, message: "Success" });
+
+        if (!uuidValidate(req.params.emp_id)) {
+            res.json({status: 400, message: "Invalid Employee ID Passed"});
+            return;
+        }
+        let transaction = await dbConnection.transaction();
+        let currentEmployee = await Employee.findByPk(req.params.emp_id);
+        let result = undefined;
+        let result2 = undefined;
+        try {
+            if (currentEmployee) {
+                result = await Employee.destroy({
+                    where: {
+                        empID: req.params.emp_id,
+                    },
+                    transaction: transaction
+                });
+                result2 = await Contact.destroy({
+                    where: {
+                        contactID: currentEmployee.contactID
+                    },
+                    transaction: transaction
+                });
+                await transaction.commit();
+            } else {
+                res.status(404).json({status: 404, message: "Employee does not exist."});
+            }
+        } catch (error) {
+            await transaction.rollback();
+            res.status(500).json({status: 500, message: "Internal server error."})
+        }
+        if (result > 0 && result2 > 0) {
+            res.json({ status: 200, message: "Success deleting record." });
         } else {
-            res.json({ status: 400, message: "Failed" });
+            res.json({ status: 400, message: "Failed to delete the record. Maybe it does not exist." });
         }
         /* #swagger.end */
     },
@@ -213,6 +246,7 @@ employeesRouter.get(
         */
         if (!uuidValidate(req.params.emp_id)) {
             res.status(404).json({ message: "Invalid employee ID passed." });
+            return;
         }
         let result: EmployeeOutput = await Employee.findByPk(
             req.params.emp_id,
@@ -268,12 +302,8 @@ employeesRouter.put(
                 details: errors,
             });
         } else {
-            let queryTransaction = await dbConnection.transaction({
-                isolationLevel: ISOLATION_LEVELS.READ_COMMITTED,
-            });
-            let updateTransaction = await dbConnection.transaction({
-                isolationLevel: ISOLATION_LEVELS.READ_COMMITTED,
-            });
+            let queryTransaction = await dbConnection.transaction();
+            let updateTransaction = await dbConnection.transaction();
             let contactInfo = req.body?.contactInformation;
             let currentEmployeeDetail: Employee = await Employee.findByPk(
                 req.params.emp_id,
@@ -305,7 +335,8 @@ employeesRouter.put(
                     });
                 }
                 await updateTransaction.commit();
-            } catch (error: unknown) {
+            } catch (error) {
+                console.log(error.name);
                 logger.error(error);
                 await updateTransaction.rollback();
                 throw error;

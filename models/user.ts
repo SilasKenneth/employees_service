@@ -47,6 +47,6 @@ User.init(
     },
 );
 
-dbConnection.sync({}).then((r) => {
-    logger.info("Sync Success!");
-});
+// dbConnection.sync({force: true}).then((r) => {
+//     logger.info("Sync Success!");
+// });
