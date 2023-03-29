@@ -15,7 +15,7 @@ import { UUID } from "crypto";
 
 const jwt = require("jsonwebtoken");
 
-let employeesRouter: Router = Router({
+const employeesRouter: Router = Router({
     caseSensitive: true,
 });
 
@@ -43,7 +43,7 @@ employeesRouter.get("/", async (req: Request, res: Response) => {
        #swagger.tags = ['Employee']
     */
 
-    let result = await Employee.findAll({
+    const result = await Employee.findAll({
         include: { model: Contact, attributes: contactAttributes },
         attributes: employeeAttributes,
     });
@@ -127,9 +127,9 @@ employeesRouter.post(
                 audience: "admin",
             }),
         );
-        let body = req.body;
+        const body = req.body;
 
-        let result = schemaValidate(body, employeePostBodySchema, {
+        const result = schemaValidate(body, employeePostBodySchema, {
             required: true,
             allowUnknownAttributes: false,
         }).errors;
@@ -139,17 +139,17 @@ employeesRouter.post(
                 details: result,
             });
         } else {
-            let empe: Employee = req.body;
-            let createEmployeeTransaction: Transaction =
+            const empe: Employee = req.body;
+            const createEmployeeTransaction: Transaction =
                 await dbConnection.transaction();
 
             try {
-                let contact: Contact = req.body.contactInformation;
-                let result2 = await Contact.create(contact, {
+                const contact: Contact = req.body.contactInformation;
+                const result2 = await Contact.create(contact, {
                     transaction: createEmployeeTransaction,
                 });
                 empe.contactID = result2.contactID;
-                let result1 = await Employee.create(empe, {
+                const result1 = await Employee.create(empe, {
                     transaction: createEmployeeTransaction,
                 });
 
@@ -163,7 +163,7 @@ employeesRouter.post(
                 logger.info(`Success saving record! ${req.body}`);
                 res.json({ status: 200, message: "Success!", data: result1 });
             } catch (error) {
-                let specifics = error.errors.map((x) => x.message);
+                const specifics = error.errors.map((x) => x.message);
                 await createEmployeeTransaction.rollback();
                 res.status(500).json({
                     status: 500,
@@ -196,8 +196,8 @@ employeesRouter.delete(
             res.json({ status: 400, message: "Invalid Employee ID Passed" });
             return;
         }
-        let transaction = await dbConnection.transaction();
-        let currentEmployee = await Employee.findByPk(req.params.emp_id);
+        const transaction = await dbConnection.transaction();
+        const currentEmployee = await Employee.findByPk(req.params.emp_id);
         let result = undefined;
         let result2 = undefined;
         try {
@@ -260,7 +260,7 @@ employeesRouter.get(
             res.status(404).json({ message: "Invalid employee ID passed." });
             return;
         }
-        let result: EmployeeOutput = await Employee.findByPk(
+        const result: EmployeeOutput = await Employee.findByPk(
             req.params.emp_id,
             {
                 include: {
@@ -297,7 +297,7 @@ employeesRouter.put(
            #swagger.produces = ["application/json"]
            #swagger.tags = ['Employee']
         */
-        let errors = schemaValidate(req.body, employeeUpdateSchema, {
+        const errors = schemaValidate(req.body, employeeUpdateSchema, {
             allowUnknownAttributes: false,
         }).errors;
 
@@ -314,17 +314,17 @@ employeesRouter.put(
                 details: errors,
             });
         } else {
-            let queryTransaction = await dbConnection.transaction();
-            let updateTransaction = await dbConnection.transaction();
-            let contactInfo = req.body?.contactInformation;
-            let currentEmployeeDetail: Employee = await Employee.findByPk(
+            const queryTransaction = await dbConnection.transaction();
+            const updateTransaction = await dbConnection.transaction();
+            const contactInfo = req.body?.contactInformation;
+            const currentEmployeeDetail: Employee = await Employee.findByPk(
                 req.params.emp_id,
                 {
                     transaction: queryTransaction,
                     include: Contact,
                 },
             );
-            let currentEmployeeContact: Contact = await Contact.findByPk(
+            const currentEmployeeContact: Contact = await Contact.findByPk(
                 currentEmployeeDetail.contactID,
                 {
                     transaction: queryTransaction,

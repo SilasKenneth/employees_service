@@ -12,7 +12,7 @@ export const createDefaultUser = async () => {
         password: hashedPass,
     };
     logger.info(data);
-    let [defaultUser, _] = await User.findOrBuild({
+    const [defaultUser, _] = await User.findOrBuild({
         where: {
             username: data.username,
         },

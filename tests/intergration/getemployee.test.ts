@@ -23,7 +23,7 @@ describe("GET /employees/(|{emp_id})", async () => {
     let accessToken = "";
     let emp: Employee = undefined;
     beforeAll(async () => {
-        let token = await request(BASE_URL).post("/token").send(defaultUser);
+        const token = await request(BASE_URL).post("/token").send(defaultUser);
         accessToken = token.body.token;
         const result = await request(BASE_URL)
             .post("/employees")
