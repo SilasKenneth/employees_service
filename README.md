@@ -24,7 +24,18 @@ This is a simple API that supports functionality to manage Employee records and
 - Run `npm run build` to build the application.
 - Run `npm run dev` to start the application server in development mode.
 - Open the url displayed on the console then navigate to `http://URL/api-docs` to view the API documentation and find out everything you can do with the application.
+> **Note:** You can test the hosted application at [https://employee-records-service.onrender.com/api-docs/](https://employee-records-service.onrender.com/api-docs)
+> 
+The default application credentials are:
 
+> **Email**: admin@employee-service.com
+> 
+> **Password**: Password@123
+### How to run tests
+- Install all the dependencies.
+- Make sure you can run the application correctly.
+- Run the app service using `npm run run`.
+- Run the test using `npm run test`
 ### Notes.
 
 If we were to have many employee records that needed to be sharded, using a key that can be easily sharded will be of great help. For instance using ULID instead of UUID to make sure we can partition data and easily search for the shard a record belongs to.
