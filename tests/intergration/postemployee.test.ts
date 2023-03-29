@@ -21,7 +21,7 @@ describe("POST /employees", () => {
     let accessToken = "";
     let addedEmployee: Employee = undefined;
     beforeAll(async () => {
-        let token = await request(BASE_URL).post("/token").send(defaultUser);
+        const token = await request(BASE_URL).post("/token").send(defaultUser);
         accessToken = token.body.token;
     });
 
@@ -32,7 +32,7 @@ describe("POST /employees", () => {
             .set({ Authorization: `Bearer ${accessToken}` });
     });
     test("Test Can add employee.", async () => {
-        let result1 = await request(BASE_URL)
+        const result1 = await request(BASE_URL)
             .post("/employees")
             .send(employee)
             .set({ Authorization: `Bearer ${accessToken}` });
@@ -40,7 +40,7 @@ describe("POST /employees", () => {
         expect(result1.body.message).toBeTruthy();
     });
     test("Test will fail adding when already exists.", async () => {
-        let result1 = await request(BASE_URL)
+        const result1 = await request(BASE_URL)
             .post("/employees")
             .send(employee)
             .set({ Authorization: `Bearer ${accessToken}` });
