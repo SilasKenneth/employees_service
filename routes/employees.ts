@@ -155,19 +155,21 @@ employeesRouter.post(
 
                 createEmployeeTransaction
                     .commit()
-                    .then(() => {
-                    })
+                    .then(() => {})
                     .catch((error) => {
                         createEmployeeTransaction.rollback();
                         logger.error(error);
                     });
                 logger.info(`Success saving record! ${req.body}`);
-                res.json({status: 200, message: "Success!", data: result1});
+                res.json({ status: 200, message: "Success!", data: result1 });
             } catch (error) {
-                let specifics = error.errors.map(x => x.message);
+                let specifics = error.errors.map((x) => x.message);
                 await createEmployeeTransaction.rollback();
-                res.status(500)
-                    .json({status: 500, message: `Could not save record ${error.message}`, errors: specifics});
+                res.status(500).json({
+                    status: 500,
+                    message: `Could not save record ${error.message}`,
+                    errors: specifics,
+                });
             }
         }
         /* #swagger.end */
@@ -191,7 +193,7 @@ employeesRouter.delete(
         */
 
         if (!uuidValidate(req.params.emp_id)) {
-            res.json({status: 400, message: "Invalid Employee ID Passed"});
+            res.json({ status: 400, message: "Invalid Employee ID Passed" });
             return;
         }
         let transaction = await dbConnection.transaction();
@@ -204,26 +206,36 @@ employeesRouter.delete(
                     where: {
                         empID: req.params.emp_id,
                     },
-                    transaction: transaction
+                    transaction: transaction,
                 });
                 result2 = await Contact.destroy({
                     where: {
-                        contactID: currentEmployee.contactID
+                        contactID: currentEmployee.contactID,
                     },
-                    transaction: transaction
+                    transaction: transaction,
                 });
                 await transaction.commit();
             } else {
-                res.status(404).json({status: 404, message: "Employee does not exist."});
+                res.status(404).json({
+                    status: 404,
+                    message: "Employee does not exist.",
+                });
             }
         } catch (error) {
             await transaction.rollback();
-            res.status(500).json({status: 500, message: "Internal server error."})
+            res.status(500).json({
+                status: 500,
+                message: "Internal server error.",
+            });
         }
         if (result > 0 && result2 > 0) {
             res.json({ status: 200, message: "Success deleting record." });
         } else {
-            res.json({ status: 400, message: "Failed to delete the record. Maybe it does not exist." });
+            res.json({
+                status: 400,
+                message:
+                    "Failed to delete the record. Maybe it does not exist.",
+            });
         }
         /* #swagger.end */
     },

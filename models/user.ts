@@ -5,7 +5,7 @@ import {
     Model,
 } from "sequelize";
 import { dbConnection } from "../common/connection";
-import {logger} from "../common/logger";
+import { logger } from "../common/logger";
 
 export class User extends Model<
     InferAttributes<User>,

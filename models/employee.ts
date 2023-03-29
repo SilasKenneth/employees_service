@@ -114,7 +114,11 @@ Employee.init(
     { sequelize: dbConnection, paranoid: false, tableName: "employees" },
 );
 
-Employee.belongsTo(Contact, { foreignKey: "contactID", onDelete: 'CASCADE', onUpdate: 'CASCADE'});
+Employee.belongsTo(Contact, {
+    foreignKey: "contactID",
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+});
 // dbConnection.sync({}).then((r) => {
 //     logger.info("Sync Success!");
 // });

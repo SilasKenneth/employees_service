@@ -1,7 +1,7 @@
 import { UUID } from "crypto";
 import { DataTypes, Model, Optional, STRING, UUIDV4 } from "sequelize";
 import { dbConnection } from "../common/connection";
-import {logger} from "../common/logger";
+import { logger } from "../common/logger";
 
 export interface ContactAttributes {
     contactID: UUID;
